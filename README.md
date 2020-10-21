@@ -1,0 +1,3 @@
+- This project use CoppeliaSim 4.1.0
+- This project provide mobile robot that can be controlled by GUI.
+- Robot and the wheels are imported from Fusion 360 design
