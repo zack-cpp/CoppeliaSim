@@ -1,0 +1,75 @@
+function sysCall_init()
+    robot = sim.getObjectAssociatedWithScript(sim.handle_self)
+    m_front_left=sim.getObjectHandle("motor1")
+    m_back_left=sim.getObjectHandle("motor2")
+    m_back_right=sim.getObjectHandle("motor3")
+    m_front_right=sim.getObjectHandle("motor4")
+    l_speed = 0
+    r_speed = 0
+    multiplier = 1
+    xml =   '<ui title="'..sim.getObjectName(robot)..' speed" closeable="false"resizeable="false" activate="false">'..[[
+            <button on-click="forward_callback" text="Maju"
+            id="1"/>
+            <button on-click="backward_callback" text="Mundur"
+            id="2"/>
+            <button on-click="right_callback" text="Kanan"
+            id="3"/>
+            <button on-click="left_callback" text="Kiri"
+            id="4"/>
+            <button on-click="stop_callback" text="Stop"
+            id="5"/>
+            <hslider on-change="speed_callback" minimum="1" maximum="5"
+            id="6"/>
+            <label text="" style="* {margin-left: 300px;}"/>
+            </ui>
+            ]]
+    ui=simUI.create(xml)
+end
+
+function speed_callback(ui,id,newVal)
+    multiplier = simUI.getSliderValue(ui,6)
+end
+
+function forward_callback()
+    l_speed = -1
+    r_speed = -1
+end
+
+function backward_callback()
+    l_speed = 1
+    r_speed = 1
+end
+
+function right_callback()
+    l_speed = 1
+    r_speed = -1
+end
+
+function left_callback()
+    l_speed = -1
+    r_speed = 1
+end
+
+function stop_callback()
+    l_speed = 0
+    r_speed = 0
+end
+
+function sysCall_actuation()
+    sim.setJointTargetVelocity(m_front_left, l_speed * multiplier)
+    sim.setJointTargetVelocity(m_back_left, l_speed * multiplier)
+    sim.setJointTargetVelocity(m_front_right, r_speed * multiplier)
+    sim.setJointTargetVelocity(m_back_right, r_speed * multiplier)
+    
+end
+
+function sysCall_sensing()
+    -- put your sensing code here
+end
+
+function sysCall_cleanup()
+    simUI.destroy(ui)
+end
+
+-- See the user manual or the available code snippets for additional callback functions and details
+
