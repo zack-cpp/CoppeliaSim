@@ -45,6 +45,7 @@ function theta_callback()
 end
 
 function start_callback()
+	--comment 'V' to use slider
     V = 100
     start = true
     back = false
@@ -52,6 +53,7 @@ function start_callback()
 end
 
 function back_callback()
+	--comment 'V' to use slider
     V = -100
     start = true
     back = true
@@ -66,6 +68,7 @@ function stop_callback()
 end
 
 function sysCall_actuation()
+	--uncomment line below to use slider
     --V = sliderVal
     waktu = sim.getSimulationTime()
     if (waktu % 1 == 0) then
@@ -89,6 +92,7 @@ function sysCall_actuation()
             end
         end
         sim.addLog(sim.verbosity_scriptinfos,'Counter: '..counter)
+		--comment every 'theta' to use slider
         if(counter >= 5 and counter <= 7)then
             if(back == true) then
                 theta = 20
