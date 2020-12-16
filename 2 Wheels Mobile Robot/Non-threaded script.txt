@@ -1,0 +1,154 @@
+function sysCall_init()
+    Body = sim.getObjectAssociatedWithScript(sim.handle_self)
+    m_left=sim.getObjectHandle("motor1")
+    m_right=sim.getObjectHandle("motor2")
+    second = 0
+    startTime = 0
+    counter = 0
+    wr = 0
+    wl = 0
+    R = 40   --dalam mm
+    D = 100  --dalam mm
+    V = 0
+    theta = 0
+    vOut = 0
+    thetaOut = 0
+    deg2rad = 0.01745329252
+    countState = true
+    xml =   '<ui title="'..sim.getObjectName(Body)..' speed" closeable="false"resizeable="false" activate="false">'..[[
+            <button on-click="start_callback" text="Start"
+            id="1"/>
+            <button on-click="back_callback" text="Back"
+            id="2"/>
+            <button on-click="stop_callback" text="Stop"
+            id="3"/>
+            <hslider on-change="theta_callback" minimum="-90" maximum="90"
+            id="4"/>
+            <hslider on-change="speed_callback" minimum="-100" maximum="100"
+            id="5"/>
+            <label text="" style="* {margin-left: 300px;}"/>
+            </ui>
+            ]]
+    ui=simUI.create(xml)
+    simUI.setSliderValue(ui,5,0)
+    simUI.setSliderValue(ui,4,0)
+    sliderVal = simUI.getSliderValue(ui,5)
+    theta = simUI.getSliderValue(ui,4)
+end
+
+function speed_callback(ui,id,newVal)
+    sliderVal = simUI.getSliderValue(ui,5)
+end
+
+function theta_callback()
+    theta = simUI.getSliderValue(ui,4)
+end
+
+function start_callback()
+    V = 100
+    start = true
+    back = false
+    startTime = sim.getSimulationTime()
+end
+
+function back_callback()
+    V = -100
+    start = true
+    back = true
+    startTime = sim.getSimulationTime()
+end
+
+function stop_callback()
+    start = false
+    back = false
+    counter = 0
+    startTime = 0
+end
+
+function sysCall_actuation()
+    --V = sliderVal
+    waktu = sim.getSimulationTime()
+    if (waktu % 1 == 0) then
+        second = waktu
+    end
+    waktu = waktu - second
+    sim.addLog(sim.verbosity_scriptinfos,'Simulation Time: '..second)
+    --sim.addLog(sim.verbosity_scriptinfos,'Decimal: '..waktu)
+    if(start == true) then
+        if(startTime % 10 > 1)then
+            startTime = startTime/10
+        end
+        --sim.addLog(sim.verbosity_scriptinfos,'Start Time: '..startTime)
+        if(waktu < startTime)then
+            countState = true
+        end
+        if(waktu >= startTime)then
+            if(countState == true)then
+                counter = counter + 1
+                countState = false
+            end
+        end
+        sim.addLog(sim.verbosity_scriptinfos,'Counter: '..counter)
+        if(counter >= 5 and counter <= 7)then
+            if(back == true) then
+                theta = 20
+            else
+                theta = -20
+            end
+        end
+        if(counter >= 8 and counter <= 15)then
+            if(back == true) then
+                theta = 0
+            else
+                theta = 0
+            end
+        end
+        if(counter >= 16 and counter <= 18)then
+            if(back == true) then
+                theta = -20
+            else
+                theta = 20
+            end
+        end
+        if(counter >= 19 and counter <= 25)then
+            if(back == true) then
+                theta = 0
+            else
+                theta = 0
+            end
+        end
+        if(counter > 20)then
+            start = false
+            theta = 0
+        end
+        
+        wr = (1/R*V)+(D/R*theta*deg2rad)
+        wl = ((1/R*V)-(D/R*theta*deg2rad))*-1
+        vOut = (R/2)*(wr+wl)
+        thetaOut = ((R/(2*D))*(wr-wl))
+        
+        sim.setJointTargetVelocity(m_right, wr)
+        sim.setJointTargetVelocity(m_left, wl)
+    else
+        sim.setJointTargetVelocity(m_right, 0)
+        sim.setJointTargetVelocity(m_left, 0)
+        counter = 0
+        startTime = 0
+    end
+    --sim.addLog(sim.verbosity_scriptinfos,'V: '..V)
+    --sim.addLog(sim.verbosity_scriptinfos,'Theta: '..theta)
+    --sim.addLog(sim.verbosity_scriptinfos,'wr: '..wr)
+    --sim.addLog(sim.verbosity_scriptinfos,'wl: '..wl)
+    --sim.addLog(sim.verbosity_scriptinfos,'vOut: '..vOut)
+    --sim.addLog(sim.verbosity_scriptinfos,'thetaOut: '..thetaOut)
+end
+
+function sysCall_sensing()
+    -- put your sensing code here
+end
+
+function sysCall_cleanup()
+    simUI.destroy(ui)
+end
+
+-- See the user manual or the available code snippets for additional callback functions and details
